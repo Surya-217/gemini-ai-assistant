@@ -1,8 +1,8 @@
 
 from google import genai
 from google.genai import types
-MODEL = "gemini-3.5-flash-lite"
 
+MODEL = "gemini-3.5-flash-lite"
 
 def create_chat(client):
     return client.chats.create(
@@ -66,7 +66,18 @@ def main():
             print("\nAI:", response.text, "\n")
 
         except Exception as error:
-            print("Request failed:", error)
+            message = str(error).lower()
+
+            if any(term in message for term in (
+                "getaddrinfo failed",
+                "connection error",
+                "network is unreachable",
+                "timed out",
+            )):
+                print("Network error: Check your internet connection and try again.")
+            else:
+                print("Request failed:", error)
+
 
 
 if __name__ == "__main__":
