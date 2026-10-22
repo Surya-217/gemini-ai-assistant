@@ -4,24 +4,9 @@ from google.genai import types
 
 MODEL = "gemini-3.5-flash-lite"
 
-def create_chat(client):
-    return client.chats.create(
-        model=MODEL,
-        config={
-            "system_instruction": (
-                "You are a concise personal AI assistant. "
-                "Answer in 3 sentences maximum by default. "
-                "Use simple English. "
-                "Do not add headings, bullet points, examples, or summaries "
-                "unless the user explicitly requests them. "
-                "Follow the user's requested response length."
-            )
-        }
-    )
 
-def main():
-    
-    client = genai.Client(
+def create_client():
+    return genai.Client(
         http_options=types.HttpOptions(
             retry_options=types.HttpRetryOptions(
                 attempts=5,
@@ -34,6 +19,24 @@ def main():
     )
 
 
+def create_chat(client):
+    return client.chats.create(
+        model=MODEL,
+        config={
+            "system_instruction": (
+                "You are a concise personal AI assistant. "
+                "Answer in 3 sentences maximum by default. "
+                "Use simple English. "
+                "Do not add headings, bullet points, examples, or summaries "
+                "unless the user explicitly requests them. "
+                "Follow the user's requested response length."
+            )
+        },
+    )
+
+
+def main():
+    client = create_client()
     chat = create_chat(client)
 
     print("AI Assistant ready! Type 'exit' to quit.\n")
@@ -56,7 +59,7 @@ def main():
             print("  /clear - Start a fresh conversation")
             print("  /exit  - Quit the assistant\n")
             continue
-        
+
         if not prompt:
             print("Please enter a message.")
             continue
@@ -68,16 +71,21 @@ def main():
         except Exception as error:
             message = str(error).lower()
 
-            if any(term in message for term in (
-                "getaddrinfo failed",
-                "connection error",
-                "network is unreachable",
-                "timed out",
-            )):
-                print("Network error: Check your internet connection and try again.")
+            if any(
+                term in message
+                for term in (
+                    "getaddrinfo failed",
+                    "connection error",
+                    "network is unreachable",
+                    "timed out",
+                )
+            ):
+                print(
+                    "Network error: Check your internet connection "
+                    "and try again."
+                )
             else:
                 print("Request failed:", error)
-
 
 
 if __name__ == "__main__":
